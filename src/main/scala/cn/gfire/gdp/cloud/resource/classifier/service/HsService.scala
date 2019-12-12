@@ -3,6 +3,7 @@ package cn.gfire.gdp.cloud.resource.classifier.service
 import com.alibaba.fastjson.{JSONArray, JSONObject}
 import com.gfire.rd.util.RedisFactory
 import org.springframework.stereotype.Service
+import redis.clients.jedis.Jedis
 
 import scala.collection.JavaConversions._
 
@@ -41,6 +42,27 @@ class HsService {
         message
     }
 
+    def sendFullscreenMessage(message:String):String = {
+        val redis = RedisFactory.getRedisInstance
+        listClient().foreach(client=> {
+            redis.set(getFullscreenKey(client.toString), message)
+            redis.expire(getFullscreenKey(client.toString),KEY_EXPIRES)
+        })
+        redis.close()
+        message
+    }
+
+    def sendGift(message:String):String = {
+        val redis = RedisFactory.getRedisInstance
+        listClient().foreach(client=> {
+            redis.set(getGiftKey(client.toString), message)
+            redis.expire(getGiftKey(client.toString),KEY_EXPIRES)
+        })
+        redis.close()
+        message
+    }
+
+
     def listMessage():JSONObject = {
         val redis = RedisFactory.getRedisInstance
         val jsa = new JSONArray()
@@ -60,18 +82,25 @@ class HsService {
         val redis = RedisFactory.getRedisInstance
         val key = HS_TOOL_CLIENT + ":" + clientId
         if(!redis.exists(key)){
-            redis.set(key, "")
-            redis.expire(key,KEY_EXPIRES)
+            setExpire(redis, key)
         }
         redis.close()
         clientId
     }
 
+    private def setExpire(redis: Jedis, key: String) = {
+        redis.set(key, "")
+        redis.set(getFullscreenKey(key),"")
+        redis.set(getGiftKey(key),"")
+        redis.expire(key, KEY_EXPIRES)
+        redis.expire(getFullscreenKey(key), KEY_EXPIRES)
+        redis.expire(getGiftKey(key), KEY_EXPIRES)
+    }
+
     def checkHealth(clientId:String)={
         val redis = RedisFactory.getRedisInstance
         val key = HS_TOOL_CLIENT + ":" + clientId
-        redis.expire(key,KEY_EXPIRES)
-        redis.close()
+        setExpire(redis,key)
         clientId
     }
 
@@ -108,13 +137,39 @@ class HsService {
         rst
     }
 
-    def getFullscreenKey(key:String):String = {
+    def consumeFullscreenMessage(clientID:String):String = {
+        val redis = RedisFactory.getRedisInstance
+        var rst = ""
+        val key = HS_TOOL_CLIENT_FULLSCREEN+":"+clientID
+        if (redis.exists(key)){
+            rst = redis.get(key)
+            redis.set(key,"")
+            redis.expire(key,KEY_EXPIRES)
+        }
+        redis.close()
+        rst
+    }
+
+    def consumeGift(clientID:String):String = {
+        val redis = RedisFactory.getRedisInstance
+        var rst = ""
+        val key = HS_TOOL_CLIENT_GIFT+":"+clientID
+        if (redis.exists(key)){
+            rst = redis.get(key)
+            redis.set(key,"")
+            redis.expire(key,KEY_EXPIRES)
+        }
+        redis.close()
+        rst
+    }
+
+    private def getFullscreenKey(key:String):String = {
         var rst = ""
         if(key!=null) rst = key.replaceAll("message","fullscreen")
         rst
     }
 
-    def getGiftKey(key:String):String = {
+    private def getGiftKey(key:String):String = {
         var rst = ""
         if(key!=null) rst = key.replaceAll("message","gift")
         rst
