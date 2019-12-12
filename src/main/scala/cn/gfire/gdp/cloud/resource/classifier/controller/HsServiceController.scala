@@ -112,7 +112,7 @@ class HsServiceController {
     notes = "")
   @RequestMapping(value = Array("/message/gift/send/{gift}"),method = Array(RequestMethod.POST))
   def sendGift(@PathVariable gift:String):String = {
-    hsService.sendFullscreenMessage(gift)
+    hsService.sendGift(gift)
   }
 
 
@@ -149,7 +149,7 @@ class HsServiceController {
     notes = "")
   @RequestMapping(value = Array("/client/{clientID}/message/gift/consume"),method = Array(RequestMethod.GET))
   def comsumeGiftMessage(@PathVariable clientID:String):String = {
-    hsService.consumeFullscreenMessage(clientID)
+    hsService.consumeGift(clientID)
   }
   @ApiImplicitParams(
     Array(
