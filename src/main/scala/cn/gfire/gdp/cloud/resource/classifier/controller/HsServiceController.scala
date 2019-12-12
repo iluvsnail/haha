@@ -93,6 +93,31 @@ class HsServiceController {
 
   @ApiImplicitParams(
     Array(
+      new ApiImplicitParam(name = "message", value = "消息", required = true,dataType = "string",  paramType = "path",defaultValue = "test")
+    )
+  )
+  @ApiOperation(value = "发送飘屏",
+    notes = "")
+  @RequestMapping(value = Array("/message/fullscreen/send/{message}"),method = Array(RequestMethod.POST))
+  def sendFullscreenMessage(@PathVariable message:String):String = {
+    hsService.sendFullscreenMessage(message)
+  }
+
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(name = "gift", value = "消息", required = true,dataType = "string",  paramType = "path",defaultValue = "test")
+    )
+  )
+  @ApiOperation(value = "发送礼物",
+    notes = "")
+  @RequestMapping(value = Array("/message/gift/send/{gift}"),method = Array(RequestMethod.POST))
+  def sendGift(@PathVariable gift:String):String = {
+    hsService.sendFullscreenMessage(gift)
+  }
+
+
+  @ApiImplicitParams(
+    Array(
       new ApiImplicitParam(name = "clientID", value = "帐号（小号）", required = true,dataType = "string",  paramType = "path",defaultValue = "test")
     )
   )
@@ -108,51 +133,34 @@ class HsServiceController {
       new ApiImplicitParam(name = "clientID", value = "帐号（小号）", required = true,dataType = "string",  paramType = "path",defaultValue = "test")
     )
   )
+  @ApiOperation(value = "客户端消费飘屏",
+    notes = "")
+  @RequestMapping(value = Array("/client/{clientID}/message/fullscreen/consume"),method = Array(RequestMethod.GET))
+  def comsumeFullscreenMessage(@PathVariable clientID:String):String = {
+    hsService.consumeFullscreenMessage(clientID)
+  }
+
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(name = "clientID", value = "帐号（小号）", required = true,dataType = "string",  paramType = "path",defaultValue = "test")
+    )
+  )
+  @ApiOperation(value = "客户端消费礼物",
+    notes = "")
+  @RequestMapping(value = Array("/client/{clientID}/message/gift/consume"),method = Array(RequestMethod.GET))
+  def comsumeGiftMessage(@PathVariable clientID:String):String = {
+    hsService.consumeFullscreenMessage(clientID)
+  }
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(name = "clientID", value = "帐号（小号）", required = true,dataType = "string",  paramType = "path",defaultValue = "test")
+    )
+  )
   @ApiOperation(value = "健康检测",
     notes = "")
   @RequestMapping(value = Array("/client/{clientID}/checkhealth"),method = Array(RequestMethod.GET))
   def checkHealth(@PathVariable clientID:String):String = {
     hsService.checkHealth(clientID)
   }
-/*  @ApiImplicitParams(
-    Array(
-      new ApiImplicitParam(name = "serverId", value = "请求服务ID", required = true,dataType = "string",  paramType = "path",defaultValue = "server-2134BCE"),
-      new ApiImplicitParam(name = "resourceId", value = "resourceId", required = true,dataType = "string", paramType = "path",defaultValue = "linux_test1")
-    )
-  )
-  @ApiOperation(value = "Classify the resouce",
-    notes = "Classify the resouce given server id and resource id")
-  @RequestMapping(value = Array("/{serverId}/evaluate/{resourceId}"),method = Array(RequestMethod.POST),produces = Array(MediaType.APPLICATION_JSON_VALUE))
-  def evaluateResource(@PathVariable serverId:String,@PathVariable resourceId:String):ResponseEntity[JSONObject] ={
-    val responseEntity = new ResponseEntity[JSONObject](classifierService.predictResource(resourceId),HttpStatus.OK)
-    responseEntity
-  }
 
-  @ApiImplicitParams(
-    Array(
-      new ApiImplicitParam(name = "serverId", value = "请求服务ID", required = true,dataType = "string",  paramType = "path",defaultValue = "server-2134BCE"),
-      new ApiImplicitParam(name = "resourceId", value = "resourceId", required = true,dataType = "string", paramType = "path",defaultValue = "game"),
-      new ApiImplicitParam(name = "standardTypeId", value = "标准分类编号", required = true,dataType = "string", paramType = "path",defaultValue = "g_123")
-    )
-  )
-  @ApiOperation(value = "Classify the resouce",
-    notes = "Classify the resouce given server id 、 resource id and type id")
-  @RequestMapping(value = Array("/{serverId}/train/{resourceId}/{standardTypeId}"),method = Array(RequestMethod.POST),produces = Array(MediaType.APPLICATION_JSON_VALUE))
-  def trainMLModel(@PathVariable serverId:String,@PathVariable resourceId:String,@PathVariable standardTypeId:String):ResponseEntity[Boolean] ={
-    val responseEntity = new ResponseEntity[Boolean](classifierService.trainMLModel(resourceId,standardTypeId),HttpStatus.OK)
-    responseEntity
-  }
-
-  @ApiImplicitParams(
-    Array(
-      new ApiImplicitParam(name = "serverId", value = "请求服务ID", required = true,dataType = "string",  paramType = "path",defaultValue = "server-2134BCE")
-    )
-  )
-  @ApiOperation(value = "reload the lr model",
-    notes = "reload the lr model given server id")
-  @RequestMapping(value = Array("/{serverId}/train/model/reload"),method = Array(RequestMethod.POST),produces = Array(MediaType.APPLICATION_JSON_VALUE))
-  def reloadModel(@PathVariable serverId:String):ResponseEntity[Boolean] ={
-   // val responseEntity = new ResponseEntity[Boolean](classifierService.reloadModel(),HttpStatus.OK)
-    //responseEntity
-  }*/
 }
