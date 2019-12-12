@@ -68,8 +68,10 @@ class HsService {
         val jsa = new JSONArray()
         listClient().foreach(client => {
             val message = redis.get(client.toString);
+            val fullscreen = redis.get(getFullscreenKey(client.toString))
+            val gift = redis.get(getGiftKey(client.toString))
             if(null !=message && !message.isEmpty)
-                jsa.add(client.toString.substring(client.toString.lastIndexOf(":")+1)+":"+message+":"+redis.ttl(client.toString))
+                jsa.add(client.toString.substring(client.toString.lastIndexOf(":")+1)+":"+message+":"+fullscreen+gift+redis.ttl(client.toString))
         })
         redis.close()
         val jso = new JSONObject()
