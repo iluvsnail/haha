@@ -2,6 +2,8 @@ package com.gfire.rd.util
 
 import java.util.ResourceBundle
 
+import scala.util.control.Exception
+
 /**
   *  ResourceUtil
  *
@@ -52,6 +54,8 @@ object ResourceUtil {
             resourceBundle = ResourceBundle.getBundle("bigdataConfig")
 
         }
+  }catch{
+    case ex:Exception=>ex.printStackTrace()
   }
 
 }
