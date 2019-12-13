@@ -5,12 +5,10 @@ package com.gfire.rd.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
-import scala.math.Ordering;
 
 /**
  * @name RedisFactory
@@ -21,10 +19,8 @@ public class RedisFactory {
 	private static final JedisPoolConfig config = new JedisPoolConfig();
 	private static JedisPool pool = null;
     private static final Logger log = LoggerFactory.getLogger(RedisFactory.class);
-    @Value("${redis.host.ip}")
     private static String ip="127.0.0.1";
-    @Value("${redis.host.port}")
-    private static int port = 6379;
+    private static int port = 16378;
 	private static void init() {
 		config.setMaxIdle(200);
 		config.setMaxTotal(5120);

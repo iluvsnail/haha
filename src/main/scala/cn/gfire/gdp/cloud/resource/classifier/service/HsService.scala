@@ -102,7 +102,10 @@ class HsService {
     def checkHealth(clientId:String)={
         val redis = RedisFactory.getRedisInstance
         val key = HS_TOOL_CLIENT + ":" + clientId
-        setExpire(redis,key)
+        redis.expire(key, KEY_EXPIRES)
+        redis.expire(getFullscreenKey(key), KEY_EXPIRES)
+        redis.expire(getGiftKey(key), KEY_EXPIRES)
+        redis.close()
         clientId
     }
 
