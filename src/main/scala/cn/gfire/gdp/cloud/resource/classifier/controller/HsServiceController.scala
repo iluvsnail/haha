@@ -105,7 +105,7 @@ class HsServiceController {
 
   @ApiImplicitParams(
     Array(
-      new ApiImplicitParam(name = "gift", value = "消息", required = true,dataType = "string",  paramType = "path",defaultValue = "test")
+      new ApiImplicitParam(name = "gift", value = "消息", required = true,dataType = "string",  paramType = "path",defaultValue = "玫瑰",allowableValues = "玫瑰,板砖,大啤酒,666")
     )
   )
   @ApiOperation(value = "发送礼物",
