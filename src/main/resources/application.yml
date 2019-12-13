@@ -3,3 +3,7 @@ server:
 spring:
   application:
     name: hs-tool
+redis:
+  host:
+    ip: 127.0.0.1
+    port: 16378

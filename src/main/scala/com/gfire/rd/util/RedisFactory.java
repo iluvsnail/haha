@@ -5,10 +5,12 @@ package com.gfire.rd.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import scala.math.Ordering;
 
 /**
  * @name RedisFactory
@@ -19,25 +21,16 @@ public class RedisFactory {
 	private static final JedisPoolConfig config = new JedisPoolConfig();
 	private static JedisPool pool = null;
     private static final Logger log = LoggerFactory.getLogger(RedisFactory.class);
+    @Value("${redis.host.ip}")
+    private static String ip="127.0.0.1";
+    @Value("${redis.host.port}")
+    private static int port = 6379;
 	private static void init() {
 		config.setMaxIdle(200);
 		config.setMaxTotal(5120);
 		config.setMaxWaitMillis(5000);
 		config.setTestOnBorrow(true);
 		config.setTestOnReturn(true);
-		String ip = "127.0.0.1";
-		try{
-			ip= ResourceUtil.getConfig("dis.redis.host.ip");
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		int port = 6379;
-		try{
-			port=Integer.parseInt(ResourceUtil.getConfig("dis.redis.host.port"));
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		ip=ip!=null&&!"".equals(ip.trim())?ip:"127.0.0.1";
 		pool = new JedisPool(config, ip, port, 60000);
 	}
 
