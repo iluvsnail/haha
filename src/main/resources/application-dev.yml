@@ -1,0 +1,9 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: hs-tool
+redis:
+  host:
+    ip: 192.168.1.69
+    port: 16377

@@ -1,9 +1,13 @@
 package cn.gfire.gdp.cloud.resource.classifier.service
 
 import com.alibaba.fastjson.{JSONArray, JSONObject}
-import com.gfire.rd.util.RedisFactory
+import javax.annotation.PostConstruct
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig
+import org.mapstruct.Qualifier
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import redis.clients.jedis.Jedis
+import redis.clients.jedis.exceptions.JedisConnectionException
+import redis.clients.jedis.{Jedis, JedisPool}
 
 import scala.collection.JavaConversions._
 
@@ -17,15 +21,33 @@ class HsService {
     val HS_TOOL_CLIENT_GIFT = "hs:tool:client:gift"
     val KEY_EXPIRES = 600
 
+
+    private var pool: JedisPool = null
+    @Autowired
+    private val redisIP =  ""
+    @Autowired
+    private val redisPort:Int = 0
+
+
+    @PostConstruct
+    private def init(): Unit = {
+        val config = new GenericObjectPoolConfig
+        config.setMaxIdle(200)
+        config.setMaxTotal(5120)
+        config.setMaxWaitMillis(5000)
+        config.setTestOnBorrow(true)
+        config.setTestOnReturn(true)
+        pool = new JedisPool(config, redisIP, redisPort,60000)
+    }
     def getCurrentCast():String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         val currentCast=redis.get(HS_TOOL_CURRENT_CAST)
         redis.close()
         currentCast
     }
 
     def setCurrentCast(newCast:String):String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         redis.set(HS_TOOL_CURRENT_CAST,newCast)
         val currentCast=redis.get(HS_TOOL_CURRENT_CAST)
         redis.close()
@@ -33,7 +55,7 @@ class HsService {
     }
 
     def sendMessage(message:String):String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         listClient().foreach(client=> {
             redis.set(client.toString, message)
             redis.expire(client.toString,KEY_EXPIRES)
@@ -43,7 +65,7 @@ class HsService {
     }
 
     def sendFullscreenMessage(message:String):String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         listClient().foreach(client=> {
             redis.set(getFullscreenKey(client.toString), message)
             redis.expire(getFullscreenKey(client.toString),KEY_EXPIRES)
@@ -53,7 +75,7 @@ class HsService {
     }
 
     def sendGift(message:String):String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         listClient().foreach(client=> {
             redis.set(getGiftKey(client.toString), message)
             redis.expire(getGiftKey(client.toString),KEY_EXPIRES)
@@ -64,7 +86,7 @@ class HsService {
 
 
     def listMessage():JSONObject = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         val jsa = new JSONArray()
         listClient().foreach(client => {
             val message = redis.get(client.toString);
@@ -81,7 +103,7 @@ class HsService {
     }
 
     def addClient(clientId:String):String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         val key = HS_TOOL_CLIENT + ":" + clientId
         if(!redis.exists(key)){
             setExpire(redis, key)
@@ -100,7 +122,7 @@ class HsService {
     }
 
     def checkHealth(clientId:String)={
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         val key = HS_TOOL_CLIENT + ":" + clientId
         redis.expire(key, KEY_EXPIRES)
         redis.expire(getFullscreenKey(key), KEY_EXPIRES)
@@ -110,7 +132,7 @@ class HsService {
     }
 
     def listClient():JSONArray = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         val jsa = new JSONArray()
         redis.keys(HS_TOOL_CLIENT+":*").foreach(rst=>{
             jsa.add(rst)
@@ -120,7 +142,7 @@ class HsService {
     }
 
     def listClients():JSONArray = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         val jsa = new JSONArray()
         redis.keys(HS_TOOL_CLIENT+":*").foreach(rst=>{
             jsa.add(rst.substring(rst.lastIndexOf(":")+1)+":"+redis.ttl(rst))
@@ -130,7 +152,7 @@ class HsService {
     }
 
     def consumeMessage(clientID:String):String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         var rst = ""
         val key = HS_TOOL_CLIENT+":"+clientID
         if (redis.exists(key)){
@@ -143,7 +165,7 @@ class HsService {
     }
 
     def consumeFullscreenMessage(clientID:String):String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         var rst = ""
         val key = HS_TOOL_CLIENT_FULLSCREEN+":"+clientID
         if (redis.exists(key)){
@@ -156,7 +178,7 @@ class HsService {
     }
 
     def consumeGift(clientID:String):String = {
-        val redis = RedisFactory.getRedisInstance
+        val redis = getRedisInstance()
         var rst = ""
         val key = HS_TOOL_CLIENT_GIFT+":"+clientID
         if (redis.exists(key)){
@@ -178,5 +200,16 @@ class HsService {
         var rst = ""
         if(key!=null) rst = key.replaceAll("message","gift")
         rst
+    }
+  private def getRedisInstance():Jedis = {
+        var jedis:Jedis = null
+        try jedis = pool.getResource
+        catch {
+            case e: JedisConnectionException =>{
+                e.printStackTrace()
+                if (jedis != null) jedis.close()
+            }
+        }
+        jedis
     }
 }
