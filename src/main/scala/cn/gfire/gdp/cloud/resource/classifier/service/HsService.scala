@@ -1,9 +1,11 @@
 package cn.gfire.gdp.cloud.resource.classifier.service
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
 import com.alibaba.fastjson.{JSONArray, JSONObject}
 import javax.annotation.PostConstruct
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
-import org.mapstruct.Qualifier
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import redis.clients.jedis.exceptions.JedisConnectionException
@@ -19,6 +21,20 @@ class HsService {
     val HS_TOOL_CLIENT= "hs:tool:client:message"
     val HS_TOOL_CLIENT_FULLSCREEN = "hs:tool:client:fullscreen"
     val HS_TOOL_CLIENT_GIFT = "hs:tool:client:gift"
+    val HS_TOOL_AUDIT = "hs:tool:audit"
+    val HS_TOOL_AUDIT_CAST = "hs:tool:audit:cast"
+    val HS_TOOL_AUDIT_SEND_MESSAGE = "hs:tool:audit:send:message"
+    val HS_TOOL_AUDIT_SEND_FULL = "hs:tool:audit:send:full"
+    val HS_TOOL_AUDIT_SEND_GIFT = "hs:tool:audit:send:gift"
+    val HS_TOOL_AUDIT_CLIENT = "hs:tool:audit:client"
+    val HS_TOOL_AUDIT_CONSUME_MESSAGE = "hs:tool:audit:send:message"
+    val HS_TOOL_AUDIT_CONSUME_FULL = "hs:tool:audit:send:full"
+    val HS_TOOL_AUDIT_CONSUME_GIFT = "hs:tool:audit:send:gift"
+
+
+    val simpFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+
     val KEY_EXPIRES = 600
 
 
@@ -50,6 +66,7 @@ class HsService {
         val redis = getRedisInstance()
         redis.set(HS_TOOL_CURRENT_CAST,newCast)
         val currentCast=redis.get(HS_TOOL_CURRENT_CAST)
+        redis.hset(HS_TOOL_AUDIT_CAST,getFormateNow,newCast)
         redis.close()
         currentCast
     }
@@ -60,6 +77,7 @@ class HsService {
             redis.set(client.toString, message)
             redis.expire(client.toString,KEY_EXPIRES)
         })
+        redis.hset(HS_TOOL_AUDIT_SEND_MESSAGE,getFormateNow,message)
         redis.close()
         message
     }
@@ -70,6 +88,7 @@ class HsService {
             redis.set(getFullscreenKey(client.toString), message)
             redis.expire(getFullscreenKey(client.toString),KEY_EXPIRES)
         })
+        redis.hset(HS_TOOL_AUDIT_SEND_FULL,getFormateNow,message)
         redis.close()
         message
     }
@@ -80,6 +99,7 @@ class HsService {
             redis.set(getGiftKey(client.toString), message)
             redis.expire(getGiftKey(client.toString),KEY_EXPIRES)
         })
+        redis.hset(HS_TOOL_AUDIT_SEND_GIFT,getFormateNow,message)
         redis.close()
         message
     }
@@ -107,6 +127,7 @@ class HsService {
         val key = HS_TOOL_CLIENT + ":" + clientId
         if(!redis.exists(key)){
             setExpire(redis, key)
+            redis.hset(HS_TOOL_AUDIT_CLIENT,getFormateNow,clientId)
         }
         redis.close()
         clientId
@@ -159,6 +180,7 @@ class HsService {
             rst = redis.get(key)
             redis.set(key,"")
             redis.expire(key,KEY_EXPIRES)
+            redis.hset(HS_TOOL_AUDIT_CONSUME_MESSAGE,clientID+":"+getFormateNow,rst)
         }
         redis.close()
         rst
@@ -172,6 +194,7 @@ class HsService {
             rst = redis.get(key)
             redis.set(key,"")
             redis.expire(key,KEY_EXPIRES)
+            redis.hset(HS_TOOL_AUDIT_CONSUME_FULL,clientID+":"+getFormateNow,rst)
         }
         redis.close()
         rst
@@ -185,6 +208,7 @@ class HsService {
             rst = redis.get(key)
             redis.set(key,"")
             redis.expire(key,KEY_EXPIRES)
+            redis.hset(HS_TOOL_AUDIT_CONSUME_GIFT,clientID+":"+getFormateNow,rst)
         }
         redis.close()
         rst
@@ -211,5 +235,9 @@ class HsService {
             }
         }
         jedis
+    }
+
+   private def getFormateNow: String = {
+        simpFormat.format(new Date)
     }
 }
