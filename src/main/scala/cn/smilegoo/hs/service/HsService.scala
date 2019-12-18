@@ -227,7 +227,6 @@ class HsService {
     }
   private def getRedisInstance():Jedis = {
         var jedis:Jedis = null
-      println(redisIP+":"+redisPort)
         try jedis = pool.getResource
         catch {
             case e: JedisConnectionException =>{
