@@ -1,4 +1,4 @@
-package cn.gfire.gdp.cloud.resource.classifier
+package cn.smilegoo.hs
 
 import org.springframework.context.annotation.Configuration
 import springfox.documentation.builders.{PathSelectors, RequestHandlerSelectors}

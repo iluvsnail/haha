@@ -1,4 +1,4 @@
-package cn.gfire.gdp.cloud.resource.classifier.service
+package cn.smilegoo.hs.service
 
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -27,9 +27,9 @@ class HsService {
     val HS_TOOL_AUDIT_SEND_FULL = "hs:tool:audit:send:full"
     val HS_TOOL_AUDIT_SEND_GIFT = "hs:tool:audit:send:gift"
     val HS_TOOL_AUDIT_CLIENT = "hs:tool:audit:client"
-    val HS_TOOL_AUDIT_CONSUME_MESSAGE = "hs:tool:audit:send:message"
-    val HS_TOOL_AUDIT_CONSUME_FULL = "hs:tool:audit:send:full"
-    val HS_TOOL_AUDIT_CONSUME_GIFT = "hs:tool:audit:send:gift"
+    val HS_TOOL_AUDIT_CONSUME_MESSAGE = "hs:tool:audit:consume:message"
+    val HS_TOOL_AUDIT_CONSUME_FULL = "hs:tool:audit:sonsume:full"
+    val HS_TOOL_AUDIT_CONSUME_GIFT = "hs:tool:audit:consume:gift"
 
 
     val simpFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -227,6 +227,7 @@ class HsService {
     }
   private def getRedisInstance():Jedis = {
         var jedis:Jedis = null
+      println(redisIP+":"+redisPort)
         try jedis = pool.getResource
         catch {
             case e: JedisConnectionException =>{

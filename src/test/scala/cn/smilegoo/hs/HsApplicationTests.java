@@ -1,4 +1,4 @@
-package cn.gfire.gdp.cloud.resource.classifier;
+package cn.smilegoo.hs;
 
 import org.junit.Ignore;
 import org.junit.Test;

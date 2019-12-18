@@ -1,4 +1,4 @@
-package cn.gfire.gdp.cloud.resource.classifier
+package cn.smilegoo.hs
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -11,7 +11,7 @@ class HsApplication {
 
 object HsApplication {
 
-	def main(args: Array[String]): Unit = {
+	def  main(args: Array[String]): Unit = {
 		SpringApplication.run(classOf[HsApplication])
 	}
 }

@@ -1,8 +1,8 @@
-package cn.gfire.gdp.cloud.resource.classifier.controller
+package cn.smilegoo.hs.controller
 
-import cn.gfire.gdp.cloud.resource.classifier.service.HsService
-import io.swagger.annotations.{Api, ApiImplicitParam, ApiImplicitParams, ApiOperation}
+import cn.smilegoo.hs.service.HsService
 import com.alibaba.fastjson.{JSONArray, JSONObject}
+import io.swagger.annotations.{Api, ApiImplicitParam, ApiImplicitParams, ApiOperation}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.{HttpStatus, MediaType, ResponseEntity}
 import org.springframework.web.bind.annotation._

@@ -1,4 +1,4 @@
-package cn.gfire.gdp.cloud.resource.classifier.service
+package cn.smilegoo.hs.service
 
 import org.junit.{Assert, Ignore, Test}
 

@@ -1,4 +1,4 @@
-package cn.gfire.gdp.cloud.resource.classifier.component
+package cn.smilegoo.hs.component
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.EnableConfigurationProperties
