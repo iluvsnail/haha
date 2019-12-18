@@ -14,7 +14,7 @@ class SwaggerConfig {
 
   @Bean def api: Docket = new Docket(DocumentationType.SWAGGER_2)
     .select
-    .apis(RequestHandlerSelectors.basePackage("cn.gfire.gdp.cloud.resource.classifier"))
+    .apis(RequestHandlerSelectors.basePackage("cn.smilegoo.hs"))
     .paths(PathSelectors.any())
     .build
 
