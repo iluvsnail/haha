@@ -28,11 +28,11 @@ class HsService {
     val HS_TOOL_AUDIT_SEND_GIFT = "hs:tool:audit:send:gift"
     val HS_TOOL_AUDIT_CLIENT = "hs:tool:audit:client"
     val HS_TOOL_AUDIT_CONSUME_MESSAGE = "hs:tool:audit:consume:message"
-    val HS_TOOL_AUDIT_CONSUME_FULL = "hs:tool:audit:sonsume:full"
+    val HS_TOOL_AUDIT_CONSUME_FULL = "hs:tool:audit:consume:full"
     val HS_TOOL_AUDIT_CONSUME_GIFT = "hs:tool:audit:consume:gift"
 
 
-    val simpFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val simpFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
 
 
     val KEY_EXPIRES = 600
@@ -178,9 +178,11 @@ class HsService {
         val key = HS_TOOL_CLIENT+":"+clientID
         if (redis.exists(key)){
             rst = redis.get(key)
-            redis.set(key,"")
-            redis.expire(key,KEY_EXPIRES)
-            redis.hset(HS_TOOL_AUDIT_CONSUME_MESSAGE,clientID+":"+getFormateNow,rst)
+            if(rst!=null && !rst.isEmpty){
+                redis.set(key,"")
+                redis.expire(key,KEY_EXPIRES)
+                redis.hset(HS_TOOL_AUDIT_CONSUME_MESSAGE,clientID+":"+getFormateNow,rst)
+            }
         }
         redis.close()
         rst
@@ -192,9 +194,11 @@ class HsService {
         val key = HS_TOOL_CLIENT_FULLSCREEN+":"+clientID
         if (redis.exists(key)){
             rst = redis.get(key)
-            redis.set(key,"")
-            redis.expire(key,KEY_EXPIRES)
-            redis.hset(HS_TOOL_AUDIT_CONSUME_FULL,clientID+":"+getFormateNow,rst)
+            if(rst!=null && !rst.isEmpty) {
+                redis.set(key,"")
+                redis.expire(key,KEY_EXPIRES)
+                redis.hset(HS_TOOL_AUDIT_CONSUME_FULL,clientID+":"+getFormateNow,rst)
+            }
         }
         redis.close()
         rst
@@ -206,9 +210,11 @@ class HsService {
         val key = HS_TOOL_CLIENT_GIFT+":"+clientID
         if (redis.exists(key)){
             rst = redis.get(key)
-            redis.set(key,"")
-            redis.expire(key,KEY_EXPIRES)
-            redis.hset(HS_TOOL_AUDIT_CONSUME_GIFT,clientID+":"+getFormateNow,rst)
+            if(rst!=null && !rst.isEmpty) {
+                redis.set(key,"")
+                redis.expire(key,KEY_EXPIRES)
+                redis.hset(HS_TOOL_AUDIT_CONSUME_GIFT,clientID+":"+getFormateNow,rst)
+            }
         }
         redis.close()
         rst

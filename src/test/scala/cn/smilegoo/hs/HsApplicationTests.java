@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class HsApplicationTests {
 
@@ -35,6 +37,14 @@ public class HsApplicationTests {
 			temp.append(e.getMessage());
 		}
 		return temp.toString();
+	}
+
+	@Test
+	@Ignore
+	public void testFormat(){
+		SimpleDateFormat simpFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		System.out.println(simpFormat.format(new Date()));
+
 	}
 
 }
