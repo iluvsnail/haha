@@ -64,43 +64,51 @@ class HsService {
 
     def setCurrentCast(newCast:String):String = {
         val redis = getRedisInstance()
+        val redisAudit = getRedisInstance(1)
         redis.set(HS_TOOL_CURRENT_CAST,newCast)
         val currentCast=redis.get(HS_TOOL_CURRENT_CAST)
-        redis.hset(HS_TOOL_AUDIT_CAST,getFormateNow,newCast)
+        redisAudit.hset(HS_TOOL_AUDIT_CAST,getFormateNow,newCast)
         redis.close()
+        redisAudit.close()
         currentCast
     }
 
     def sendMessage(message:String):String = {
         val redis = getRedisInstance()
+        val redisAudit = getRedisInstance(1)
         listClient().foreach(client=> {
             redis.set(client.toString, message)
             redis.expire(client.toString,KEY_EXPIRES)
         })
-        redis.hset(HS_TOOL_AUDIT_SEND_MESSAGE,getFormateNow,message)
+        redisAudit.hset(HS_TOOL_AUDIT_SEND_MESSAGE,getFormateNow,message)
         redis.close()
+        redisAudit.close()
         message
     }
 
     def sendFullscreenMessage(message:String):String = {
         val redis = getRedisInstance()
+        val redisAudit = getRedisInstance(1)
         listClient().foreach(client=> {
             redis.set(getFullscreenKey(client.toString), message)
             redis.expire(getFullscreenKey(client.toString),KEY_EXPIRES)
         })
-        redis.hset(HS_TOOL_AUDIT_SEND_FULL,getFormateNow,message)
+        redisAudit.hset(HS_TOOL_AUDIT_SEND_FULL,getFormateNow,message)
         redis.close()
+        redisAudit.close()
         message
     }
 
     def sendGift(message:String):String = {
         val redis = getRedisInstance()
+        val redisAudit = getRedisInstance(1)
         listClient().foreach(client=> {
             redis.set(getGiftKey(client.toString), message)
             redis.expire(getGiftKey(client.toString),KEY_EXPIRES)
         })
-        redis.hset(HS_TOOL_AUDIT_SEND_GIFT,getFormateNow,message)
+        redisAudit.hset(HS_TOOL_AUDIT_SEND_GIFT,getFormateNow,message)
         redis.close()
+        redisAudit.close()
         message
     }
 
@@ -124,12 +132,14 @@ class HsService {
 
     def addClient(clientId:String):String = {
         val redis = getRedisInstance()
+        val redisAudit = getRedisInstance(1)
         val key = HS_TOOL_CLIENT + ":" + clientId
         if(!redis.exists(key)){
             setExpire(redis, key)
-            redis.hset(HS_TOOL_AUDIT_CLIENT,getFormateNow,clientId)
+            redisAudit.hset(HS_TOOL_AUDIT_CLIENT,getFormateNow,clientId)
         }
         redis.close()
+        redisAudit.close()
         clientId
     }
 
@@ -174,6 +184,7 @@ class HsService {
 
     def consumeMessage(clientID:String):String = {
         val redis = getRedisInstance()
+        val redisAudit = getRedisInstance(1)
         var rst = ""
         val key = HS_TOOL_CLIENT+":"+clientID
         if (redis.exists(key)){
@@ -181,15 +192,17 @@ class HsService {
             if(rst!=null && !rst.isEmpty){
                 redis.set(key,"")
                 redis.expire(key,KEY_EXPIRES)
-                redis.hset(HS_TOOL_AUDIT_CONSUME_MESSAGE,clientID+":"+getFormateNow,rst)
+                redisAudit.hset(HS_TOOL_AUDIT_CONSUME_MESSAGE,clientID+":"+getFormateNow,rst)
             }
         }
         redis.close()
+        redisAudit.close()
         rst
     }
 
     def consumeFullscreenMessage(clientID:String):String = {
         val redis = getRedisInstance()
+        val redisAudit = getRedisInstance(1)
         var rst = ""
         val key = HS_TOOL_CLIENT_FULLSCREEN+":"+clientID
         if (redis.exists(key)){
@@ -197,15 +210,17 @@ class HsService {
             if(rst!=null && !rst.isEmpty) {
                 redis.set(key,"")
                 redis.expire(key,KEY_EXPIRES)
-                redis.hset(HS_TOOL_AUDIT_CONSUME_FULL,clientID+":"+getFormateNow,rst)
+                redisAudit.hset(HS_TOOL_AUDIT_CONSUME_FULL,clientID+":"+getFormateNow,rst)
             }
         }
         redis.close()
+        redisAudit.close()
         rst
     }
 
     def consumeGift(clientID:String):String = {
         val redis = getRedisInstance()
+        val redisAudit = getRedisInstance(1)
         var rst = ""
         val key = HS_TOOL_CLIENT_GIFT+":"+clientID
         if (redis.exists(key)){
@@ -213,10 +228,11 @@ class HsService {
             if(rst!=null && !rst.isEmpty) {
                 redis.set(key,"")
                 redis.expire(key,KEY_EXPIRES)
-                redis.hset(HS_TOOL_AUDIT_CONSUME_GIFT,clientID+":"+getFormateNow,rst)
+                redisAudit.hset(HS_TOOL_AUDIT_CONSUME_GIFT,clientID+":"+getFormateNow,rst)
             }
         }
         redis.close()
+        redisAudit.close()
         rst
     }
 
@@ -231,9 +247,12 @@ class HsService {
         if(key!=null) rst = key.replaceAll("message","gift")
         rst
     }
-  private def getRedisInstance():Jedis = {
+  private def getRedisInstance(db:Int):Jedis = {
         var jedis:Jedis = null
-        try jedis = pool.getResource
+        try {
+            jedis = pool.getResource
+            jedis.select(db)
+        }
         catch {
             case e: JedisConnectionException =>{
                 e.printStackTrace()
@@ -242,7 +261,9 @@ class HsService {
         }
         jedis
     }
-
+    private def getRedisInstance():Jedis = {
+        getRedisInstance(0)
+    }
    private def getFormateNow: String = {
         simpFormat.format(new Date)
     }
