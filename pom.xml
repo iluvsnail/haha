@@ -18,7 +18,7 @@
         <java.version>1.8</java.version>
         <gfire.url>192.168.1.68</gfire.url>
         <spring-cloud.version>Brixton.RELEASE</spring-cloud.version>
-        <swagger.version>2.7.0</swagger.version>
+        <swagger.version>2.10.0</swagger.version>
         <scala.version>2.11.8</scala.version>
         <scala.modules.version>1.0.6</scala.modules.version>
     </properties>
